@@ -1,8 +1,7 @@
 import { RequestHandler } from "express";
 import Player from "../models/players";
 
-interface iPlayer {
-  _id: string;
+interface IPlayer {
   name: string;
   goals?: number;
   assists?: number;
@@ -29,22 +28,34 @@ export const getPlayerById:RequestHandler<{id:string},unknown,unknown,unknown> =
     }
 }
 
-export const createPlayer:RequestHandler<{id:string},unknown,unknown,unknown> = async (req, res, next) => {
+export const createPlayer:RequestHandler<unknown, unknown,IPlayer,unknown> = async (req, res, next) => {
     try {
-        const newPlayer = new Player(req.body);
+        const {name} = req.body;
+        
+        const newPlayer = await Player.create({name});
         const savedPlayer = await newPlayer.save();
+        
         res.status(201).json(savedPlayer);
     } catch (error) {
         next(error);
     }
 }
 
-export const updatePlayer:RequestHandler<{id:string},unknown,iPlayer,unknown> = async (req, res, next) => {
+export const updatePlayer:RequestHandler<{id:string},unknown,IPlayer,unknown> = async (req, res, next) => {
     try {
-        const updatedPlayer = await Player.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!updatedPlayer) {
+        const {name, goals, assists} = req.body;
+        const id = req.params.id;
+        const player = await Player.findById(id)
+        
+        if (!player) {
             return res.status(404).json({ message: "Player not found" });
         }
+
+        player.name = name || player.name;
+        player.goals = goals !== undefined ? goals : player.goals;
+        player.assists = assists !== undefined ? assists : player.assists;
+
+        const updatedPlayer = await player.save();
         res.status(200).json(updatedPlayer);
     } catch (error) {
         next(error);
@@ -57,7 +68,7 @@ export const deletePlayer:RequestHandler<{id:string},unknown,unknown,unknown> = 
         if (!deletedPlayer) {
             return res.status(404).json({ message: "Player not found" });
         }
-        res.status(200).json({ message: "Player deleted successfully" });
+        res.status(204).json({ message: "Player deleted successfully" });
     } catch (error) {
         next(error);
     }
