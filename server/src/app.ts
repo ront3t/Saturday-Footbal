@@ -5,6 +5,8 @@ import morgan from 'morgan'
 import createHttpError, {isHttpError} from 'http-errors'
 import cors from 'cors'
 
+import playersRouter from './routes/players';
+
 
 ///configurations
 const app = express()
@@ -16,6 +18,8 @@ app.use(morgan('dev'));
 app.use(cors())
 
 ///Routes
+app.use('/api/players', playersRouter);
+
 
 app.use( (req, res, next) => {
     next(createHttpError(404, "Endpoint not found"))  
