@@ -1,11 +1,15 @@
+import { Provider } from 'react-redux';
+import { store } from './redux/store';
+import { PlayersPage } from './pages/PlayersPage';
+import { TopBar } from './components/TopBar';
 
-function App() {
-  
+export default function App() {
   return (
-    <div>
-      hello world
-    </div>
-  )
-}
-
-export default App;
+    <>
+      <Provider store={store}>
+        <TopBar />
+        <PlayersPage />
+      </Provider>
+    </>
+  );
+};
