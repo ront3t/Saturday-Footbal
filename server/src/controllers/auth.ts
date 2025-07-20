@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import UserModel from "../models/user";
+import UserModel from "../models/User";
 import { RequestHandler } from "express";
 import { generateTokenAndSetCookie } from "../utils/generateToken";
 
@@ -10,7 +10,9 @@ interface IUser{
     fullname:string
     password:string
     email:string
-    role: 'user' | 'admin' | 'superadmin'
+    role: 'user' | 'admin' | 'superadmin',
+    goals: number,
+    assists: number
 }
 
 /* REGISTER USER */
@@ -56,11 +58,11 @@ export const register:RequestHandler<unknown, unknown, IUser, unknown>  = async 
 
 export const login:RequestHandler = async (req, res, next) => {
   try {
-      const {username,password} = req.body;
-      const user = await UserModel.findOne({username});
+      const {email,password} = req.body;
+      const user = await UserModel.findOne({email});
       if(!user)
-        return res.status(400).json({error:"invalid username"})
-      const isPasswordCorrect = await bcrypt.compare(password, user.password)
+        return res.status(400).json({error:"invalid email"});
+      const isPasswordCorrect = await bcrypt.compare(password, user.password);
 
       if(!isPasswordCorrect)
         return res.status(400).json({error:"invalid password"})
@@ -80,13 +82,3 @@ export const logout:RequestHandler = async (req,res, next) => {
     next(err)
   }
 }
-
-export const getMe:RequestHandler = async (req,res, next) => {
-  try {
-    const user = await UserModel.findById(req.user._id).select('-password');
-    res.status(200).json(user);
-  } catch (err) {
-    next(err)
-  }
-}
-

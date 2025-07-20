@@ -28,6 +28,14 @@ const UserSchema = new Schema(
       enum: ['user', 'admin', 'superadmin'],
       default: 'user',
     },
+    goals: {
+      type: Number,
+      default: 0,
+    },
+    assists: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );

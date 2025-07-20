@@ -6,7 +6,7 @@ const TeamSchema = new Schema(
       type: [Schema.Types.ObjectId],
       ref: 'Player',
       default: [],
-    }
+    },
   },
   { timestamps: true }
 );
