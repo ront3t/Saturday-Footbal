@@ -1,39 +1,59 @@
-import 'dotenv/config'
-import express, { NextFunction, Request, Response } from 'express'
-import dotenv from "dotenv"
-import morgan from 'morgan'
-import createHttpError, {isHttpError} from 'http-errors'
-import cors from 'cors'
+import express from 'express';
+import dotenv from 'dotenv';
+import cors from 'cors';
+import helmet from 'helmet';
+import morgan from 'morgan';
+import compression from 'compression';
+import cookieParser from 'cookie-parser';
 
-import playersRouter from './routes/players';
+import { authRoutes } from './routes/auth';
+import { userRoutes } from './routes/user';
+import { groupRoutes } from './routes/group';
+import { meetupRoutes } from './routes/meetup';
 
+import { generalLimiter, createAccountLimiter, loginLimiter } from './middleware/rateLimitMiddleware';
 
-///configurations
-const app = express()
+const app = express();
 app.use(express.json())
 
-dotenv.config()
+dotenv.config();
 
-app.use(morgan('dev'));
-app.use(cors())
+// Global Middlewares
+app.use(helmet()); // Security headers
+app.use(compression()); // Compress responses
+app.use(morgan('combined')); // Logging
+app.use(cookieParser()); // Parse cookies
 
-///Routes
-app.use('/api/players', playersRouter);
+// CORS configuration
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 
+// Rate limiting
+app.use('/api/', generalLimiter);
+app.use('/api/auth/register', createAccountLimiter);
+app.use('/api/auth/login', loginLimiter);
 
-app.use( (req, res, next) => {
-    next(createHttpError(404, "Endpoint not found"))  
-})
+// Body parser middleware
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true }));
 
-app.use((error:unknown,req:Request, res:Response, next:NextFunction) => {
-  let errorMessage = "ohhh no! something went wrong";
-  let statusCode = 500;
-  if (isHttpError(error))
-  {
-    statusCode = error.status
-    errorMessage = error.message
-  }
-  res.status(statusCode).json({ error:errorMessage})
-})
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/groups', groupRoutes);
+app.use('/api/meetups', meetupRoutes);
 
-export default app
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.status(200).json({
+    status: 'success',
+    message: 'Server is running',
+    timestamp: new Date().toISOString(),
+  });
+});
+
+export default app;
