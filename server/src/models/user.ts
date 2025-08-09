@@ -1,44 +1,122 @@
-import {Schema, model, InferSchemaType} from "mongoose";
+// server/src/models/User.ts
+import mongoose, { Document, Schema } from 'mongoose';
+import bcrypt from 'bcrypt';
 
-const UserSchema = new Schema(
-  {
-    username:{	
+export interface IUser extends Document {
+  email: string;
+  password: string;
+  profile: {
+    firstName: string;
+    lastName: string;
+    phoneNumber?: string;
+    profileImage: {
+      type: 'avatar' | 'upload';
+      value: string;
+    };
+    dateOfBirth: Date;
+    location: string;
+    preferredPositions: string[];
+    skillLevel: 'beginner' | 'intermediate' | 'advanced';
+    bio?: string;
+  };
+  isVerified: boolean;
+  verificationToken?: string;
+  passwordResetToken?: string;
+  passwordResetExpires?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+  comparePassword(candidatePassword: string): Promise<boolean>;
+}
+
+const UserSchema = new Schema<IUser>({
+  email: {
+    type: String,
+    required: [true, 'Email is required'],
+    unique: true,
+    lowercase: true,
+    trim: true,
+  },
+  password: {
+    type: String,
+    required: [true, 'Password is required'],
+    minlength: [6, 'Password must be at least 6 characters'],
+  },
+  profile: {
+    firstName: {
       type: String,
-      required: true,
-      unique:true,
-      min: 2,
-      max: 50,
+      required: [true, 'First name is required'],
+      trim: true,
     },
-    fullname:{
+    lastName: {
       type: String,
+      required: [true, 'Last name is required'],
+      trim: true,
     },
-    email: {
+    phoneNumber: {
       type: String,
-      max: 50,
-      unique: true,
-      select: false
+      trim: true,
     },
-    password: {
+    profileImage: {
+      type: {
+        type: String,
+        enum: ['avatar', 'upload'],
+        default: 'avatar',
+      },
+      value: {
+        type: String,
+        default: 'default-avatar.png',
+      },
+    },
+    dateOfBirth: {
+      type: Date,
+      required: [true, 'Date of birth is required'],
+    },
+    location: {
       type: String,
-      required: true,
-      min: 5,
+      required: [true, 'Location is required'],
+      trim: true,
     },
-    role: {
+    preferredPositions: [{
       type: String,
-      enum: ['user', 'admin', 'superadmin'],
-      default: 'user',
+      enum: ['Goalkeeper', 'Defender', 'Midfielder', 'Forward', 'Any'],
+    }],
+    skillLevel: {
+      type: String,
+      enum: ['beginner', 'intermediate', 'advanced'],
+      required: [true, 'Skill level is required'],
     },
-    goals: {
-      type: Number,
-      default: 0,
-    },
-    assists: {
-      type: Number,
-      default: 0,
+    bio: {
+      type: String,
+      maxlength: [500, 'Bio cannot exceed 500 characters'],
     },
   },
-  { timestamps: true }
-);
-type User = InferSchemaType<typeof UserSchema>
+  isVerified: {
+    type: Boolean,
+    default: false,
+  },
+  verificationToken: String,
+  passwordResetToken: String,
+  passwordResetExpires: Date,
+}, {
+  timestamps: true,
+});
 
-export default model<User>("User", UserSchema);
+// Hash password before saving
+UserSchema.pre('save', async function(next) {
+  if (!this.isModified('password')) return next();
+  
+  try {
+    const salt = await bcrypt.genSalt(12);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (error) {
+    next(error as Error);
+  }
+});
+
+// Compare password method
+UserSchema.methods.comparePassword = async function(candidatePassword: string): Promise<boolean> {
+  return bcrypt.compare(candidatePassword, this.password);
+};
+
+export const User = mongoose.model<IUser>('User', UserSchema);

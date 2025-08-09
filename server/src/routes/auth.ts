@@ -1,13 +1,21 @@
-import express from "express";
-import * as AuthController from "../controllers/auth";
-import { protectRoute } from "../middleware/protectRoute";
+import express from 'express';
+import {
+  register,
+  login,
+  logout,
+  verifyEmail,
+  forgotPassword,
+  resetPassword,
+} from '../controllers/auth';
+import { validateRegistration, validateLogin } from '../validations/authValidations';
 
 const router = express.Router();
 
-router.post("/login", AuthController.login);
+router.post('/register', validateRegistration, register);
+router.post('/login', validateLogin, login);
+router.post('/logout', logout);
+router.get('/verify-email/:token', verifyEmail);
+router.post('/forgot-password', forgotPassword);
+router.post('/reset-password/:token', resetPassword);
 
-router.post("/register", AuthController.register);
-
-router.post("/logout",AuthController.logout)
-
-export default router;
+export { router as authRoutes };
