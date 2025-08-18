@@ -33,8 +33,7 @@ const Groups: React.FC = () => {
   }, [dispatch]);
 
   const filteredGroups = groups.filter(group => {
-    const matchesSearch = group.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         group.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = group.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesPrivacy = privacyFilter === 'all' || group.privacy === privacyFilter;
     return matchesSearch && matchesPrivacy;
   });
