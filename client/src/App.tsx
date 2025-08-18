@@ -1,152 +1,189 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Provider } from 'react-redux';
 import { Toaster } from 'react-hot-toast';
-import { AuthProvider, useAuth } from './Context/AuthContext';
-import { Layout } from './components/Layout/Layout';
-import { LoadingSpinner } from './components/common/LoadingSpinner';
+import { store } from './store/store';
+import { useAppSelector } from './hooks/redux';
+import Navbar from './components/layout/Navbar';
+import LoadingSpinner from './components/ui/LoadingSpinner';
 
-// Pages
-import { HomePage } from './pages/HomePage';
-import { LoginPage } from './pages/LoginPage';
-import { RegisterPage } from './pages/RegisterPage';
-import { DashboardPage } from './pages/DashboardPage';
-import { ProfilePage } from './pages/ProfilePage';
-import { GroupsPage } from './pages/GroupsPage';
-import { MeetupsPage } from './pages/MeetupsPage';
-import { MeetupDetailsPage } from './pages/MeetupsDetailsPage';
+// Lazy loaded components
+const Home = React.lazy(() => import('./pages/Home'));
+const Login = React.lazy(() => import('./pages/auth/Login'));
+const Register = React.lazy(() => import('./pages/auth/Register'));
+const Dashboard = React.lazy(() => import('./pages/Dashboard'));
+const Profile = React.lazy(() => import('./pages/Profile'));
+const Groups = React.lazy(() => import('./pages/Groups'));
+const GroupDetail = React.lazy(() => import('./pages/GroupDetail'));
+const Meetups = React.lazy(() => import('./pages/Meetups'));
+const MeetupDetail = React.lazy(() => import('./pages/MeetupDetail'));
+const CreateMeetup = React.lazy(() => import('./pages/CreateMeetup'));
+const Stats = React.lazy(() => import('./pages/Stats'));
 
 // Protected Route Component
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
-
+  const { isAuthenticated, loading } = useAppSelector(state => state.auth);
+  
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner size="lg" />
-      </div>
-    );
+    return <LoadingSpinner />;
   }
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-
-  return <>{children}</>;
+  
+  return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
 };
 
-// Public Route Component (redirect to dashboard if authenticated)
+// Public Route Component (redirect if authenticated)
 const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
-
+  const { isAuthenticated, loading } = useAppSelector(state => state.auth);
+  
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner size="lg" />
-      </div>
-    );
+    return <LoadingSpinner />;
   }
-
-  if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
-  }
-
-  return <>{children}</>;
+  
+  return !isAuthenticated ? <>{children}</> : <Navigate to="/dashboard" replace />;
 };
 
-function AppRoutes() {
+const AppContent: React.FC = () => {
+  const { isAuthenticated } = useAppSelector(state => state.auth);
+
   return (
-    <Layout>
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<HomePage />} />
-        <Route
-          path="/login"
-          element={
-            <PublicRoute>
-              <LoginPage />
-            </PublicRoute>
-          }
-        />
-        <Route
-          path="/register"
-          element={
-            <PublicRoute>
-              <RegisterPage />
-            </PublicRoute>
-          }
-        />
-
-        {/* Protected Routes */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <DashboardPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <ProfilePage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/groups"
-          element={
-            <ProtectedRoute>
-              <GroupsPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/meetups"
-          element={
-            <ProtectedRoute>
-              <MeetupsPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/meetups/:id"
-          element={
-            <ProtectedRoute>
-              <MeetupDetailsPage />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Catch all route */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </Layout>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800">
+      {isAuthenticated && <Navbar />}
+      
+      <main className={isAuthenticated ? 'pt-16' : ''}>
+        <React.Suspense fallback={<LoadingSpinner />}>
+          <Routes>
+            {/* Public Routes */}
+            <Route 
+              path="/" 
+              element={
+                <PublicRoute>
+                  <Home />
+                </PublicRoute>
+              } 
+            />
+            <Route 
+              path="/login" 
+              element={
+                <PublicRoute>
+                  <Login />
+                </PublicRoute>
+              } 
+            />
+            <Route 
+              path="/register" 
+              element={
+                <PublicRoute>
+                  <Register />
+                </PublicRoute>
+              } 
+            />
+            
+            {/* Protected Routes */}
+            <Route 
+              path="/dashboard" 
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/profile" 
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/groups" 
+              element={
+                <ProtectedRoute>
+                  <Groups />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/groups/:id" 
+              element={
+                <ProtectedRoute>
+                  <GroupDetail />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/meetups" 
+              element={
+                <ProtectedRoute>
+                  <Meetups />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/meetups/create" 
+              element={
+                <ProtectedRoute>
+                  <CreateMeetup />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/meetups/:id" 
+              element={
+                <ProtectedRoute>
+                  <MeetupDetail />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/stats" 
+              element={
+                <ProtectedRoute>
+                  <Stats />
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* Catch all route */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </React.Suspense>
+      </main>
+      
+      {/* Toast notifications */}
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: '#1e293b',
+            color: '#f8fafc',
+            border: '1px solid #334155',
+          },
+          success: {
+            style: {
+              border: '1px solid #10b981',
+            },
+          },
+          error: {
+            style: {
+              border: '1px solid #ef4444',
+            },
+          },
+        }}
+      />
+    </div>
   );
-}
+};
 
-function App() {
+const App: React.FC = () => {
   return (
-    <AuthProvider>
+    <Provider store={store}>
       <Router>
-        <div className="App">
-          <AppRoutes />
-          <Toaster
-            position="top-right"
-            toastOptions={{
-              duration: 4000,
-              style: {
-                background: '#fff',
-                color: '#374151',
-                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-                border: '1px solid #e5e7eb',
-              },
-            }}
-          />
-        </div>
+        <AppContent />
       </Router>
-    </AuthProvider>
+    </Provider>
   );
-}
+};
 
 export default App;

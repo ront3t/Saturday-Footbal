@@ -58,7 +58,6 @@ export const useMeetupDetails = (meetupId: string) => {
     meetup,
     loading,
     error,
-    refetch: fetchMeetup,
     registerForMeetup,
     cancelRegistration,
     approveGuest,

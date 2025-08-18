@@ -38,11 +38,6 @@ export const protect = catchAsync(async (req: Request, res: Response, next: Next
     throw new AppError('The user belonging to this token does no longer exist.', 401);
   }
 
-  // 4) Check if user is verified
-  if (!currentUser.isVerified) {
-    throw new AppError('Please verify your email address to access this resource.', 401);
-  }
-
   // Grant access to protected route
   req.user = {
     id: String(currentUser._id),

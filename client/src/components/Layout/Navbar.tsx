@@ -1,201 +1,163 @@
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../Context/AuthContext';
-import { Button } from '../ui/Button';
-import { Avatar } from '../ui/Avatar';
+import React, { useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
-  Menu as MenuIcon,
-  Settings,
-  LogOut,
-  User,
-  Users,
-  Calendar
+  Home, 
+  Users, 
+  Calendar, 
+  BarChart3, 
+  User, 
+  LogOut, 
+  Menu, 
+  X 
 } from 'lucide-react';
 
-export const Navbar: React.FC = () => {
-  const { user, logout } = useAuth();
+import { useAppDispatch, useAppSelector } from '../../hooks/redux';
+import { logout } from '../../store/slices/authSlice';
+
+const Navbar: React.FC = () => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation();
   const navigate = useNavigate();
-  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
-  const [profileMenuOpen, setProfileMenuOpen] = React.useState(false);
+  const dispatch = useAppDispatch();
+  const { user } = useAppSelector(state => state.auth);
+
+  const navigation = [
+    { name: 'Dashboard', href: '/dashboard', icon: Home },
+    { name: 'Groups', href: '/groups', icon: Users },
+    { name: 'Meetups', href: '/meetups', icon: Calendar },
+    { name: 'Stats', href: '/stats', icon: BarChart3 },
+  ];
 
   const handleLogout = () => {
-    logout();
+    dispatch(logout());
     navigate('/');
   };
 
+  const isActive = (path: string) => location.pathname === path;
+
   return (
-    <nav className="bg-white shadow-lg border-b border-gray-100">
+    <nav className="fixed top-0 left-0 right-0 z-40 bg-slate-900/95 backdrop-blur-sm border-b border-slate-700/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
-          {/* Logo and Brand */}
+          {/* Logo */}
           <div className="flex items-center">
-            <Link to="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">⚽</span>
+            <Link to="/dashboard" className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-700 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">SM</span>
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
+              <span className="text-white font-bold text-xl hidden sm:block">
                 Soccer Meetup
               </span>
             </Link>
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-6">
-            {user ? (
-              <>
+          <div className="hidden md:flex items-center space-x-1">
+            {navigation.map((item) => {
+              const Icon = item.icon;
+              return (
                 <Link
-                  to="/dashboard"
-                  className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  key={item.name}
+                  to={item.href}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    isActive(item.href)
+                      ? 'bg-blue-600/20 text-blue-300 border border-blue-500/30'
+                      : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
+                  }`}
                 >
-                  Dashboard
+                  <Icon className="w-4 h-4" />
+                  <span>{item.name}</span>
                 </Link>
-                <Link
-                  to="/groups"
-                  className="flex items-center space-x-1 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                >
-                  <Users className="w-4 h-4" />
-                  <span>Groups</span>
-                </Link>
-                <Link
-                  to="/meetups"
-                  className="flex items-center space-x-1 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                >
-                  <Calendar className="w-4 h-4" />
-                  <span>Meetups</span>
-                </Link>
+              );
+            })}
+          </div>
 
-                {/* Profile Dropdown */}
-                <div className="relative">
-                  <button
-                    onClick={() => setProfileMenuOpen(!profileMenuOpen)}
-                    className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 focus:outline-none"
-                  >
-                    <Avatar
-                      src={user.profile.profileImage.type === 'upload' ? user.profile.profileImage.value : undefined}
-                      alt={`${user.profile.firstName} ${user.profile.lastName}`}
-                      fallback={`${user.profile.firstName[0]}${user.profile.lastName[0]}`}
-                      size="sm"
-                    />
-                    <span className="text-sm font-medium">
-                      {user.profile.firstName}
+          {/* User Menu */}
+          <div className="flex items-center space-x-4">
+            {/* Profile Dropdown */}
+            <div className="relative group">
+              <button className="flex items-center space-x-2 p-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all duration-200">
+                <div className="w-8 h-8 bg-gradient-to-br from-slate-600 to-slate-800 rounded-full flex items-center justify-center">
+                  {user?.profile.profileImage.type === 'avatar' ? (
+                    <span className="text-white text-sm font-medium">
+                      {user?.profile.firstName.charAt(0)}{user?.profile.lastName.charAt(0)}
                     </span>
-                  </button>
-
-                  {profileMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
-                      <Link
-                        to="/profile"
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        onClick={() => setProfileMenuOpen(false)}
-                      >
-                        <User className="w-4 h-4 mr-2" />
-                        Profile
-                      </Link>
-                      <Link
-                        to="/settings"
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        onClick={() => setProfileMenuOpen(false)}
-                      >
-                        <Settings className="w-4 h-4 mr-2" />
-                        Settings
-                      </Link>
-                      <button
-                        onClick={handleLogout}
-                        className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      >
-                        <LogOut className="w-4 h-4 mr-2" />
-                        Sign out
-                      </button>
-                    </div>
+                  ) : (
+                    <img 
+                      src={user?.profile.profileImage.value} 
+                      alt="Profile" 
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
                   )}
                 </div>
-              </>
-            ) : (
-              <div className="flex items-center space-x-4">
-                <Link to="/login">
-                  <Button variant="ghost">Sign In</Button>
-                </Link>
-                <Link to="/register">
-                  <Button variant="primary">Get Started</Button>
-                </Link>
-              </div>
-            )}
-          </div>
+                <span className="hidden sm:block text-sm">
+                  {user?.profile.firstName}
+                </span>
+              </button>
 
-          {/* Mobile menu button */}
-          <div className="md:hidden flex items-center">
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-gray-700 hover:text-blue-600 focus:outline-none focus:text-blue-600"
-            >
-              <MenuIcon className="w-6 h-6" />
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile Navigation */}
-        {mobileMenuOpen && (
-          <div className="md:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-gray-200">
-              {user ? (
-                <>
-                  <Link
-                    to="/dashboard"
-                    className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Dashboard
-                  </Link>
-                  <Link
-                    to="/groups"
-                    className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Groups
-                  </Link>
-                  <Link
-                    to="/meetups"
-                    className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Meetups
-                  </Link>
+              {/* Dropdown Menu */}
+              <div className="absolute right-0 mt-2 w-48 bg-slate-800 rounded-lg shadow-xl border border-slate-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <div className="py-2">
                   <Link
                     to="/profile"
-                    className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md"
-                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center space-x-2 px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-700/50 transition-colors"
                   >
-                    Profile
+                    <User className="w-4 h-4" />
+                    <span>Profile</span>
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className="block w-full text-left px-3 py-2 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md"
+                    className="flex items-center space-x-2 w-full px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-700/50 transition-colors"
                   >
-                    Sign out
+                    <LogOut className="w-4 h-4" />
+                    <span>Logout</span>
                   </button>
-                </>
-              ) : (
-                <>
-                  <Link
-                    to="/login"
-                    className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Sign In
-                  </Link>
-                  <Link
-                    to="/register"
-                    className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Get Started
-                  </Link>
-                </>
-              )}
+                </div>
+              </div>
             </div>
+
+            {/* Mobile menu button */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden p-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-700/50 transition-colors"
+            >
+              {isMobileMenuOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
+            </button>
           </div>
-        )}
+        </div>
       </div>
+
+      {/* Mobile Navigation */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden bg-slate-800/95 backdrop-blur-sm border-t border-slate-700/50">
+          <div className="px-4 py-3 space-y-1">
+            {navigation.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.name}
+                  to={item.href}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    isActive(item.href)
+                      ? 'bg-blue-600/20 text-blue-300 border border-blue-500/30'
+                      : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
+                  }`}
+                >
+                  <Icon className="w-5 h-5" />
+                  <span>{item.name}</span>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </nav>
   );
 };
+
+export default Navbar;

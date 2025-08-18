@@ -32,6 +32,5 @@ export const useGroups = (query: GroupsQuery = {}) => {
     loading,
     error,
     pagination,
-    refetch: fetchGroups,
   };
 };

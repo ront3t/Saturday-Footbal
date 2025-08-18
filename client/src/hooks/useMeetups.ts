@@ -64,7 +64,6 @@ export const useMeetups = (query: MeetupsQuery = {}) => {
     loading,
     error,
     pagination,
-    refetch: fetchMeetups,
     registerForMeetup,
     cancelRegistration,
   };
