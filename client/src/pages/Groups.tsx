@@ -15,6 +15,9 @@ import Input from '../components/ui/Input';
 import Select from '../components/ui/Select';
 import Badge from '../components/ui/Badge';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import Modal from '../components/ui/Modal';
+
+import CreateGroupForm from '../components/CreateGroupForm';
 
 const Groups: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -101,12 +104,6 @@ const Groups: React.FC = () => {
                 className="cursor-pointer"
                 onClick={() => navigate(`/groups/${group._id}`)}
                 role="button"
-                tabIndex={0}
-                onKeyUp={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    navigate(`/groups/${group._id}`);
-                  }
-                }}
               >
                 <Card hover>
                   <div className="flex items-start justify-between mb-4">
@@ -177,6 +174,21 @@ const Groups: React.FC = () => {
           />
         )}
       </Container>
+      {/* Create Group Modal */}
+      <Modal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        title="Create New Group"
+        size="lg"
+      >
+        <CreateGroupForm
+          onSuccess={() => {
+            setIsCreateModalOpen(false);
+            dispatch(fetchUserGroups());
+          }}
+          onCancel={() => setIsCreateModalOpen(false)}
+        />
+      </Modal>
     </div>
   );
 };
