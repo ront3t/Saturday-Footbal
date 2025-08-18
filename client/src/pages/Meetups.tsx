@@ -137,7 +137,8 @@ const Meetups: React.FC = () => {
               <div
                 key={meetup._id}
                 className="cursor-pointer"
-                onKeyUp={() => navigate(`/meetups/${meetup._id}`)}
+                onClick={() => navigate(`/meetups/${meetup._id}`)}
+                role = "button"
               >
                 <Card hover>
                 <div className="flex items-start justify-between mb-4">
