@@ -177,8 +177,6 @@ const Groups: React.FC = () => {
           />
         )}
       </Container>
-
-      0.10
     </div>
   );
 };
