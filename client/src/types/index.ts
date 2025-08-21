@@ -44,7 +44,7 @@ export interface Meetup {
   _id: string;
   title: string;
   description: string;
-  group: Group;
+  group: string;
   createdBy: User;
   dateTime: string;
   duration?: number;

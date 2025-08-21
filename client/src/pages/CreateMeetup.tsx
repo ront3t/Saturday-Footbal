@@ -11,14 +11,13 @@ import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import Select from '../components/ui/Select';
-// import LocationPicker from '../components/LocationPicker';
 import toast from 'react-hot-toast';
-import { Group } from '@/types';
+import LocationPicker from '../components/LocationPicker';
 
 interface CreateMeetupFormData {
   title: string;
   description: string;
-  group: Group;
+  group: string;
   dateTime: string;
   duration?: number;
   location: {
@@ -195,8 +194,8 @@ const CreateMeetup: React.FC = () => {
 
                   <Select
                     {...register('group', { required: 'Please select a group' })}
-                    label="Group"
-                    options={[{ value: '', label: 'Select a group...' }, ...groupOptions]}
+                    label="group"
+                    options={[...groupOptions]}
                     error={errors.group?.message}
                     disabled={groupsLoading}
                   />
@@ -241,6 +240,7 @@ const CreateMeetup: React.FC = () => {
 
                   <Input
                     {...register('duration', {
+                      valueAsNumber: true,
                       min: { value: 30, message: 'Duration must be at least 30 minutes' },
                       max: { value: 480, message: 'Duration cannot exceed 8 hours' }
                     })}
@@ -310,10 +310,10 @@ const CreateMeetup: React.FC = () => {
                     </p>
                   </div>
 
-                  {/* <LocationPicker
+                  <LocationPicker
                     onLocationSelect={setSelectedLocation}
                     selectedLocation={selectedLocation}
-                  /> */}
+                  />
 
                   <div className="flex space-x-3">
                     <Button type="button" variant="ghost" onClick={handleBack} fullWidth>
@@ -365,7 +365,7 @@ const CreateMeetup: React.FC = () => {
                       <div className="flex justify-between">
                         <span className="text-slate-400">Group:</span>
                         <span className="text-white">
-                          {groups.find(g => g._id === watch('group')._id)?.name || 'Not selected'}
+                          {groups.find(g => g._id === watch('group'))?.name || 'Not selected'}
                         </span>
                       </div>
                       <div className="flex justify-between">
