@@ -16,7 +16,6 @@ export interface IUser extends Document {
     dateOfBirth: Date;
     location: string;
     preferredPositions: string[];
-    skillLevel: 'beginner' | 'intermediate' | 'advanced';
     bio?: string;
   };
   isVerified: boolean;
@@ -80,11 +79,6 @@ const UserSchema = new Schema<IUser>({
       type: String,
       enum: ['Goalkeeper', 'Defender', 'Midfielder', 'Forward', 'Any'],
     }],
-    skillLevel: {
-      type: String,
-      enum: ['beginner', 'intermediate', 'advanced'],
-      required: [true, 'Skill level is required'],
-    },
     bio: {
       type: String,
       maxlength: [500, 'Bio cannot exceed 500 characters'],

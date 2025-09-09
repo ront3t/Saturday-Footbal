@@ -180,8 +180,7 @@ const GroupDetail: React.FC = () => {
                       <p className="text-white text-sm font-medium truncate">
                         {member.profile?.firstName} {member.profile?.lastName}
                       </p>
-                      <p className="text-slate-400 text-xs">{member.profile?.skillLevel}</p>
-                    </div>
+                                          </div>
                   </div>
                 ))}
               </div>

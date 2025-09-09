@@ -12,11 +12,13 @@ import Badge from '../components/ui/Badge';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import EmptyState from '../components/layout/EmptyState';
 
+
 const Meetups: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [timeFilter, setTimeFilter] = useState('all');
-  
+  const { groups } = useAppSelector(state => state.groups);
+
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { meetups, loading } = useAppSelector(state => state.meetups);
@@ -26,8 +28,7 @@ const Meetups: React.FC = () => {
   }, [dispatch]);
 
   const filteredMeetups = meetups.filter(meetup => {
-    const matchesSearch = meetup.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         meetup.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = meetup.title.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesStatus = statusFilter === 'all' || meetup.status === statusFilter;
     
     let matchesTime = true;
@@ -151,7 +152,7 @@ const Meetups: React.FC = () => {
                         {meetup.title}
                       </h3>
                       <p className="text-slate-400 text-sm">
-                        {meetup.group?.name}
+                        {groups.find(g=> g._id === meetup.group)?.name || 'Unknown Group'}
                       </p>
                     </div>
                   </div>

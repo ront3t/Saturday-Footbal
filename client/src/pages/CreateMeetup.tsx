@@ -1,17 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
+
 import { ArrowLeft, Calendar as CalendarIcon, Users, DollarSign } from 'lucide-react';
+
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { createMeetup } from '../store/slices/meetupSlice';
 import { fetchUserGroups } from '../store/slices/groupSlice';
+
 import PageHeader from '../components/layout/PageHeader';
 import Container from '../components/layout/Container';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import Select from '../components/ui/Select';
-import toast from 'react-hot-toast';
+
 import LocationPicker from '../components/LocationPicker';
 
 interface CreateMeetupFormData {

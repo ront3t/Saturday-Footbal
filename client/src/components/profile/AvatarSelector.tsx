@@ -17,12 +17,19 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({ selectedAvatar, onSelec
     { id: 'player6.png', emoji: '🎯', color: 'bg-pink-500' },
   ];
 
+  const handleAvatarClick = (e: React.MouseEvent, avatarId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onSelect(avatarId);
+  };
+
   return (
     <div className="grid grid-cols-4 gap-3">
       {avatars.map((avatar) => (
         <button
           key={avatar.id}
-          onClick={() => onSelect(avatar.id)}
+          type="button"
+          onClick={(e) => handleAvatarClick(e, avatar.id)}
           className={`w-16 h-16 rounded-full flex items-center justify-center text-2xl transition-all duration-200 border-2 ${
             selectedAvatar === avatar.id
               ? 'border-blue-500 scale-110 shadow-lg shadow-blue-500/25'

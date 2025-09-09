@@ -66,7 +66,7 @@ export const authApi = {
     api.get('/users/profile'),
 
   updateProfile: (profileData: Partial<User['profile']>): Promise<AxiosResponse<ApiResponse<{ user: User }>>> =>
-    api.put('/users/profile', profileData),
+    api.put('/users/profile', { profile: profileData }),
 };
 
 // Groups API

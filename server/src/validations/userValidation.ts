@@ -20,7 +20,6 @@ const profileUpdateSchema = z.object({
     location: z.string().min(1, 'Location is required').max(100, 'Location too long').optional(),
     preferredPositions: z.array(z.enum(['Goalkeeper', 'Defender', 'Midfielder', 'Forward', 'Any']))
       .min(1, 'At least one position is required').optional(),
-    skillLevel: z.enum(['beginner', 'intermediate', 'advanced']).optional(),
     bio: z.string().max(500, 'Bio cannot exceed 500 characters').optional(),
   }).optional(),
 });

@@ -23,7 +23,6 @@ interface RegisterFormData {
   dateOfBirth: string;
   location: string;
   preferredPositions: string[];
-  skillLevel: 'beginner' | 'intermediate' | 'advanced';
 }
 
 const Register: React.FC = () => {
@@ -63,11 +62,6 @@ const Register: React.FC = () => {
     }
   }, [error, dispatch]);
 
-  const skillLevelOptions = [
-    { value: 'beginner', label: 'Beginner' },
-    { value: 'intermediate', label: 'Intermediate' },
-    { value: 'advanced', label: 'Advanced' }
-  ];
 
   const positionOptions = [
     { value: 'Goalkeeper', label: 'Goalkeeper' },
@@ -80,7 +74,7 @@ const Register: React.FC = () => {
   const handleNext = async () => {
     const fieldsToValidate = step === 1 
       ? ['email', 'password', 'confirmPassword']
-      : ['firstName', 'lastName', 'dateOfBirth', 'location', 'skillLevel'];
+      : ['firstName', 'lastName', 'dateOfBirth', 'location'];
     
     const isValid = await trigger(fieldsToValidate as any);
     if (isValid) {
@@ -103,7 +97,6 @@ const Register: React.FC = () => {
         dateOfBirth: registrationData.dateOfBirth,
         location: registrationData.location,
         preferredPositions: registrationData.preferredPositions,
-        skillLevel: registrationData.skillLevel,
         profileImage: {
           type: 'avatar' as const,
           value: selectedAvatar
@@ -281,14 +274,6 @@ const Register: React.FC = () => {
                   />
                 </div>
 
-                <Select
-                  {...register('skillLevel', {
-                    required: 'Skill level is required'
-                  })}
-                  label="Skill Level"
-                  options={skillLevelOptions}
-                  error={errors.skillLevel?.message}
-                />
 
                 <div className="flex space-x-2">
                   <Button 

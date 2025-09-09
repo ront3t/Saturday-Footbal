@@ -8,8 +8,7 @@ import Container from '../components/layout/Container';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
-import Select from '../components/ui/Select';
-import Badge from '../components/ui/Badge';
+import { Avatar } from '../components/ui/Avatar';
 import AvatarSelector from '../components/profile/AvatarSelector';
 import toast from 'react-hot-toast';
 
@@ -19,7 +18,6 @@ interface ProfileFormData {
   phoneNumber?: string;
   location: string;
   preferredPositions: string[];
-  skillLevel: 'beginner' | 'intermediate' | 'advanced';
   bio?: string;
 }
 
@@ -28,6 +26,7 @@ const Profile: React.FC = () => {
   const [selectedAvatar, setSelectedAvatar] = useState('');
   const dispatch = useAppDispatch();
   const { user, loading } = useAppSelector(state => state.auth);
+
 
   const {
     register,
@@ -44,18 +43,12 @@ const Profile: React.FC = () => {
         phoneNumber: user.profile.phoneNumber || '',
         location: user.profile.location,
         preferredPositions: user.profile.preferredPositions,
-        skillLevel: user.profile.skillLevel,
         bio: user.profile.bio || ''
       });
       setSelectedAvatar(user.profile.profileImage.value);
     }
   }, [user, reset]);
 
-  const skillLevelOptions = [
-    { value: 'beginner', label: 'Beginner' },
-    { value: 'intermediate', label: 'Intermediate' },
-    { value: 'advanced', label: 'Advanced' }
-  ];
 
   const positionOptions = [
     { value: 'Goalkeeper', label: 'Goalkeeper' },
@@ -90,7 +83,6 @@ const Profile: React.FC = () => {
         phoneNumber: user.profile.phoneNumber || '',
         location: user.profile.location,
         preferredPositions: user.profile.preferredPositions,
-        skillLevel: user.profile.skillLevel,
         bio: user.profile.bio || ''
       });
       setSelectedAvatar(user.profile.profileImage.value);
@@ -120,19 +112,13 @@ const Profile: React.FC = () => {
                 <Card>
                   <div className="text-center">
                     <div className="relative inline-block mb-6">
-                      <div className="w-32 h-32 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center text-4xl">
-                        {user.profile.profileImage.type === 'avatar' ? (
-                          <span className="text-white font-bold">
-                            {user.profile.firstName.charAt(0)}{user.profile.lastName.charAt(0)}
-                          </span>
-                        ) : (
-                          <img 
-                            src={user.profile.profileImage.value} 
-                            alt="Profile" 
-                            className="w-32 h-32 rounded-full object-cover"
-                          />
-                        )}
-                      </div>
+                      <Avatar
+                        src={isEditing ? selectedAvatar : user.profile.profileImage.value}
+                        alt={`${user.profile.firstName} ${user.profile.lastName}`}
+                        size="xl"
+                        className="!w-32 !h-32 !text-5xl"
+                        fallback={`${user.profile.firstName.charAt(0)}${user.profile.lastName.charAt(0)}`}
+                      />
                     </div>
 
                     {isEditing && (
@@ -166,11 +152,6 @@ const Profile: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="mt-6">
-                      <Badge variant="info" className="text-center">
-                        {user.profile.skillLevel}
-                      </Badge>
-                    </div>
                   </div>
                 </Card>
               </div>
@@ -218,13 +199,6 @@ const Profile: React.FC = () => {
                       error={errors.location?.message}
                     />
 
-                    <Select
-                      {...register('skillLevel', { required: 'Skill level is required' })}
-                      label="Skill Level"
-                      options={skillLevelOptions}
-                      disabled={!isEditing}
-                      error={errors.skillLevel?.message}
-                    />
                   </div>
 
                   <div className="mt-6">

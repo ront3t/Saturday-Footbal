@@ -54,7 +54,6 @@ export const register = createAsyncThunk<
       dateOfBirth: string;
       location: string;
       preferredPositions: string[];
-      skillLevel: 'beginner' | 'intermediate' | 'advanced';
       profileImage: {
         type: 'avatar' | 'upload';
         value: string;

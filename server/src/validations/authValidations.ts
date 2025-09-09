@@ -12,7 +12,6 @@ const registrationSchema = z.object({
     dateOfBirth: z.string().refine(date => !isNaN(Date.parse(date)), 'Invalid date'),
     location: z.string().min(1, 'Location is required'),
     preferredPositions: z.array(z.string()).min(1, 'At least one position is required'),
-    skillLevel: z.enum(['beginner', 'intermediate', 'advanced']),
     bio: z.string().max(500, 'Bio cannot exceed 500 characters').optional(),
   }),
 });

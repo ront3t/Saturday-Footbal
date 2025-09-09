@@ -1,14 +1,18 @@
 import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Calendar, MapPin, Users, Clock, DollarSign, Edit, Trash2 } from 'lucide-react';
+
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
-import { fetchMeetupById, registerForMeetup, cancelRegistration } from '../store/slices/meetupSlice';
+import { fetchMeetupById, deleteMeetup, registerForMeetup, cancelRegistration } from '../store/slices/meetupSlice';
+
 import PageHeader from '../components/layout/PageHeader';
 import Container from '../components/layout/Container';
+
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+
 import toast from 'react-hot-toast';
 
 const MeetupDetail: React.FC = () => {
@@ -16,6 +20,7 @@ const MeetupDetail: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { currentMeetup: meetup, loading } = useAppSelector(state => state.meetups);
+  const { groups } = useAppSelector(state => state.groups);
   const { user } = useAppSelector(state => state.auth);
 
   useEffect(() => {
@@ -27,7 +32,7 @@ const MeetupDetail: React.FC = () => {
   const isUserRegistered = meetup?.participants.confirmed.some(p => p._id === user?._id);
   const isUserOnWaitlist = meetup?.participants.waitlist.some(p => p._id === user?._id);
   const isCreator = meetup?.createdBy._id === user?._id;
-  const canEdit = isCreator || meetup?.group?.managers?.some((m: any) => m._id === user?._id);
+  const canEdit = isCreator || groups.find(g=> g._id === meetup?.group)?.managers?.some((m: any) => m._id === user?._id);
 
   const handleRegister = async () => {
     if (!meetup?._id) return;
@@ -46,6 +51,21 @@ const MeetupDetail: React.FC = () => {
       toast.success('Registration cancelled');
     } catch (error: any) {
       toast.error(error || 'Failed to cancel registration');
+    }
+  };
+
+  
+  const handleDelete = async () => {
+    try{
+      if(!id){
+        toast.error('problem with delete');
+        return;
+      }
+      await dispatch(deleteMeetup(id)).unwrap();
+      toast.success('Meetup deleted successfully!');
+      navigate('/meetups');
+    } catch (error: any) {
+      toast.error(error || 'Failed to delete meetup');
     }
   };
 
@@ -76,7 +96,7 @@ const MeetupDetail: React.FC = () => {
       <div className="min-h-screen flex items-center justify-center">
         <LoadingSpinner size="lg" />
       </div>
-    );
+    );  
   }
 
   if (!meetup) {
@@ -96,7 +116,7 @@ const MeetupDetail: React.FC = () => {
     <div className="min-h-screen">
       <PageHeader
         title={meetup.title}
-        subtitle={`Organized by ${meetup.group?.name}`}
+        subtitle={`Organized by ${groups.find(g=> g._id === meetup?.group)?.name}`}
         action={{
           label: 'Back to Meetups',
           onClick: () => navigate('/meetups'),
@@ -113,7 +133,7 @@ const MeetupDetail: React.FC = () => {
                 <Edit className="w-4 h-4 mr-1" />
                 Edit
               </Button>
-              <Button size="sm" variant="danger">
+              <Button size="sm" variant="danger" onClick={handleDelete}>
                 <Trash2 className="w-4 h-4 mr-1" />
                 Delete
               </Button>
@@ -178,7 +198,6 @@ const MeetupDetail: React.FC = () => {
                         <p className="text-white font-medium">
                           {participant.profile?.firstName} {participant.profile?.lastName}
                         </p>
-                        <p className="text-slate-400 text-sm">{participant.profile?.skillLevel}</p>
                       </div>
                     </div>
                   ))}
@@ -203,8 +222,7 @@ const MeetupDetail: React.FC = () => {
                           <p className="text-white font-medium">
                             {participant.profile?.firstName} {participant.profile?.lastName}
                           </p>
-                          <p className="text-slate-400 text-sm">{participant.profile?.skillLevel}</p>
-                        </div>
+                          </div>
                       </div>
                     ))}
                   </div>

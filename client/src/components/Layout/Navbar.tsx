@@ -13,6 +13,7 @@ import {
 
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { logout } from '../../store/slices/authSlice';
+import { Avatar } from '../ui/Avatar';
 
 const Navbar: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -77,19 +78,12 @@ const Navbar: React.FC = () => {
             {/* Profile Dropdown */}
             <div className="relative group">
               <button className="flex items-center space-x-2 p-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all duration-200">
-                <div className="w-8 h-8 bg-gradient-to-br from-slate-600 to-slate-800 rounded-full flex items-center justify-center">
-                  {user?.profile.profileImage.type === 'avatar' ? (
-                    <span className="text-white text-sm font-medium">
-                      {user?.profile.firstName.charAt(0)}{user?.profile.lastName.charAt(0)}
-                    </span>
-                  ) : (
-                    <img 
-                      src={user?.profile.profileImage.value} 
-                      alt="Profile" 
-                      className="w-8 h-8 rounded-full object-cover"
-                    />
-                  )}
-                </div>
+                <Avatar
+                  src={user?.profile.profileImage.value}
+                  alt={`${user?.profile.firstName} ${user?.profile.lastName}`}
+                  size="sm"
+                  fallback={`${user?.profile.firstName.charAt(0)}${user?.profile.lastName.charAt(0)}`}
+                />
                 <span className="hidden sm:block text-sm">
                   {user?.profile.firstName}
                 </span>

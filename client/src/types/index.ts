@@ -12,7 +12,6 @@ export interface User {
     dateOfBirth: string;
     location: string;
     preferredPositions: string[];
-    skillLevel: 'beginner' | 'intermediate' | 'advanced';
     bio?: string;
   };
   isVerified: boolean;
